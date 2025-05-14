@@ -1,0 +1,8 @@
+django>=5.0.0
+django-htmx>=1.23.0
+gunicorn>=21.2.0
+pymongo>=4.6.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+django-jazzmin>=3.0.1
+django-widget-tweaks>=1.4.12 

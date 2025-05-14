@@ -1,0 +1,18 @@
+{% if error %}
+  <div class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load profile: {{ error }}</div>
+{% endif %}
+<h1 class="text-4xl font-extrabold text-primary mb-1 flex items-center gap-3">
+  <span>Dashboard</span>
+  {% if gitlab_user.avatar_url %}
+    <img src="{{ gitlab_user.avatar_url }}" alt="Profile" class="w-10 h-10 rounded-full border-2 border-primary shadow transition-transform duration-300 hover:scale-110">
+  {% endif %}
+</h1>
+<div class="flex items-center gap-2 mt-1">
+  {% if gitlab_user.name %}
+    <span class="text-lg font-semibold text-gray-800">{{ gitlab_user.name }}</span>
+  {% endif %}
+  {% if gitlab_user.username %}
+    <span class="text-gray-500">@{{ gitlab_user.username }}</span>
+  {% endif %}
+</div>
+<p class="text-gray-500 mt-2">Track your GitLab activity and contributions in real time</p> 

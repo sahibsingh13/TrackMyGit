@@ -1,0 +1,49 @@
+{% if error %}
+  <div class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load issues: {{ error }}</div>
+{% endif %}
+
+<!-- Tickets Created Section -->
+<h4 class="font-bold text-green-600 flex items-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  Tickets Created
+</h4>
+{% if created_issues %}
+  <ul class="ml-5 list-disc space-y-1">
+    {% for issue in created_issues %}
+      <li>
+        <span class="font-medium">#{{ issue.iid }}</span>
+        {% if issue.title %} - <span class="">{{ issue.title }}</span>{% endif %}
+        <span class="text-gray-500">in {{ issue.project }}</span>
+        {% if issue.link %}<a href="{{ issue.link }}" target="_blank" class="text-blue-600 underline ml-2">View</a>{% endif %}
+        <span class="text-xs text-gray-400 ml-2">{{ issue.timestamp|date:'H:i' }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="text-gray-500 ml-5">No tickets created on this day.</div>
+{% endif %}
+
+<!-- Tickets Completed Section -->
+<h4 class="font-bold text-blue-600 flex items-center gap-2 mt-4">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+  </svg>
+  Tickets Marked Done
+</h4>
+{% if closed_issues %}
+  <ul class="ml-5 list-disc space-y-1">
+    {% for issue in closed_issues %}
+      <li>
+        <span class="font-medium">#{{ issue.iid }}</span>
+        {% if issue.title %} - <span class="">{{ issue.title }}</span>{% endif %}
+        <span class="text-gray-500">in {{ issue.project }}</span>
+        {% if issue.link %}<a href="{{ issue.link }}" target="_blank" class="text-blue-600 underline ml-2">View</a>{% endif %}
+        <span class="text-xs text-gray-400 ml-2">{{ issue.timestamp|date:'H:i' }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="text-gray-500 ml-5">No tickets completed on this day.</div>
+{% endif %} 

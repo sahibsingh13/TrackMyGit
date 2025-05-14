@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex justify-center">
+  <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+    <h2 class="text-2xl font-bold text-primary mb-6 text-center">Connect Your GitLab Account</h2>
+    <p class="mb-6 text-gray-600 text-center">Enter your GitLab Personal Access Token to enable contribution tracking. Your token is stored securely and only used to access your GitLab activity.<br>
+    <strong>If you use a self-hosted GitLab, set the API Host (e.g., https://gitlab.mycompany.com).</strong></p>
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+      <div>
+        {{ form.gitlab_token.label_tag }}
+        {{ form.gitlab_token }}
+        <div class="form-text text-xs text-gray-500">{{ form.gitlab_token.help_text }}</div>
+      </div>
+      <div>
+        {{ form.gitlab_host.label_tag }}
+        {{ form.gitlab_host }}
+        <div class="form-text text-xs text-gray-500">{{ form.gitlab_host.help_text }}</div>
+      </div>
+      <div class="flex gap-4">
+        <button type="submit" class="w-full py-3 rounded bg-primary text-white font-bold text-lg shadow hover:bg-primary-dark transition">Save Token</button>
+        {% if can_delete %}
+        <button type="submit" name="delete" value="1" class="w-full py-3 rounded bg-red-500 text-white font-bold text-lg shadow hover:bg-red-700 transition">Delete</button>
+        {% endif %}
+      </div>
+    </form>
+    {% if profile.gitlab_token or profile.gitlab_host %}
+    <div class="mt-8">
+      <h4 class="font-semibold mb-2">Your Saved GitLab Profile</h4>
+      <div class="bg-gray-50 rounded p-4 border border-gray-200">
+        <div class="mb-2"><span class="font-semibold">GitLab Host:</span> {{ profile.gitlab_host|default:'-' }}</div>
+        <div><span class="font-semibold">Token (masked):</span> {{ profile.gitlab_token|default:'-'|slice:':4' }}****</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} 

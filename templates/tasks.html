@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+@media print {
+  nav, .print-hide, .sidebar-toggle, button.print-hide, .mb-8 > h1 svg, .mb-8 > h1 .print-hide, .print-hide-btn { display: none !important; }
+  body, html { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+  .bg-white, .bg-gray-50, .rounded-2xl, .shadow-lg, .p-8, .mb-8, .border, .border-gray-100 { 
+    background: #fff !important; 
+    box-shadow: none !important; 
+    border: none !important; 
+    margin: 0 !important;
+    padding: 10px !important;
+  }
+  .text-primary, .text-accent, .text-green-600, .text-blue-600 { color: #222 !important; }
+  .text-xs, .text-gray-400, .text-gray-500 { color: #555 !important; }
+  .list-disc { list-style-type: disc !important; }
+  @page { size: auto; margin: 10mm; }
+  
+  /* Ensure all sections are visible when printing */
+  .lazy-section { display: block !important; opacity: 1 !important; }
+  .loading-placeholder { display: none !important; }
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Loading placeholder pulse animation */
+.loading-placeholder {
+  display: block;
+}
+
+/* Loading indicator for sections */
+.htmx-indicator-visible {
+  opacity: 0.5;
+}
+
+/* Instant transition for navigation */
+.no-transition {
+  transition: none !important;
+}
+</style>
+
+<div class="mb-8 flex items-center justify-between print-hide">
+  <h1 class="text-4xl font-extrabold text-primary mb-2 flex items-center gap-3">
+    <span>Daily Activity</span>
+    <svg class="h-8 w-8 text-accent animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+  </h1>
+  <button onclick="window.print()" class="print-hide-btn px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V9a2 2 0 012-2h16a2 2 0 012 2v7a2 2 0 01-2 2h-2m-6 0v4m0 0h4m-4 0H8" /></svg>
+    Print / Save as PDF
+  </button>
+</div>
+
+{% if error %}
+  <div class="bg-red-700/80 text-white p-3 rounded mb-4 animate-fade-in print-hide">{{ error }}</div>
+{% endif %}
+
+<div class="bg-white rounded-2xl shadow-lg p-8 mb-8 animate-fade-in">
+  <!-- Date Picker Section -->
+  <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 print-hide">
+    <div class="flex items-center gap-4">
+      <form method="get" class="flex items-center no-transition">
+        <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" 
+               class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+               onchange="this.form.submit()">
+      </form>
+      <div class="flex items-center gap-2">
+        {% if prev_date %}
+          <a href="?date={{ prev_date|date:'Y-m-d' }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-800 transition flex items-center no-transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Previous
+          </a>
+        {% endif %}
+        <a href="?date={{ today|date:'Y-m-d' }}" class="px-3 py-2 bg-primary text-white hover:bg-primary-dark rounded transition no-transition">Today</a>
+        {% if next_date %}
+          <a href="?date={{ next_date|date:'Y-m-d' }}" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-800 transition flex items-center no-transition">
+            Next
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="border-b border-gray-200 pb-2">
+      <h2 class="text-2xl font-bold text-primary">{{ selected_date|date:"F d, Y" }}</h2>
+    </div>
+  </div>
+
+  <!-- Structured Work Summary Section -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-primary mb-3">Structured Work Summary</h3>
+    <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+      
+      <!-- Issues Section - Preloaded UI structure -->
+      <div class="mb-4 lazy-section" id="issues-container"> 
+        <h4 class="font-bold text-green-600 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Tickets Created
+        </h4>
+        <div class="ml-5 loading-placeholder" hx-get="/partials/issues/?date={{ selected_date|date:'Y-m-d' }}" hx-trigger="load" hx-swap="outerHTML" hx-indicator="#issues-loading">
+          <div class="animate-pulse space-y-2">
+            <div class="bg-gray-200 h-4 w-full rounded"></div>
+            <div class="bg-gray-200 h-4 w-3/4 rounded"></div>
+          </div>
+        </div>
+        <div id="issues-loading" class="htmx-indicator">Loading issues...</div>
+      </div>
+      
+      <!-- Merge Requests Section - Preloaded UI structure -->
+      <div class="mb-4 lazy-section" id="merge-requests-container">
+        <h4 class="font-bold text-accent flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          Merge Requests & Pushes
+        </h4>
+        <div class="ml-5 loading-placeholder" hx-get="/partials/merge-requests/?date={{ selected_date|date:'Y-m-d' }}" hx-trigger="load" hx-swap="outerHTML" hx-indicator="#mr-loading">
+          <div class="animate-pulse space-y-2">
+            <div class="bg-gray-200 h-4 w-full rounded"></div>
+            <div class="bg-gray-200 h-4 w-3/4 rounded"></div>
+          </div>
+        </div>
+        <div id="mr-loading" class="htmx-indicator">Loading merge requests and pushes...</div>
+      </div>
+      
+      <!-- Comments Section - Preloaded UI structure -->
+      <div class="mb-4 lazy-section" id="comments-container">
+        <h4 class="font-bold text-accent flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Comments
+        </h4>
+        <div class="ml-5 loading-placeholder" hx-get="/partials/comments/?date={{ selected_date|date:'Y-m-d' }}" hx-trigger="load" hx-swap="outerHTML" hx-indicator="#comments-loading">
+          <div class="animate-pulse space-y-2">
+            <div class="bg-gray-200 h-4 w-full rounded"></div>
+            <div class="bg-gray-200 h-4 w-3/4 rounded"></div>
+          </div>
+        </div>
+        <div id="comments-loading" class="htmx-indicator">Loading comments...</div>
+      </div>
+      
+      <!-- Other Activity Section - Preloaded UI structure -->
+      <div class="mb-4 lazy-section" id="other-container">
+        <h4 class="font-bold text-accent flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Other Activity
+        </h4>
+        <div class="ml-5 loading-placeholder" hx-get="/partials/other/?date={{ selected_date|date:'Y-m-d' }}" hx-trigger="load" hx-swap="outerHTML" hx-indicator="#other-loading">
+          <div class="animate-pulse space-y-2">
+            <div class="bg-gray-200 h-4 w-full rounded"></div>
+            <div class="bg-gray-200 h-4 w-3/4 rounded"></div>
+          </div>
+        </div>
+        <div id="other-loading" class="htmx-indicator">Loading other activities...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for printing -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Let's show all sections immediately with loading placeholders
+    document.querySelectorAll('.loading-placeholder').forEach(placeholder => {
+      // This will trigger the HTMX loading
+      htmx.process(placeholder);
+    });
+    
+    // Force loading of all sections for printing
+    function forceLoadAll() {
+      document.querySelectorAll('.loading-placeholder').forEach(placeholder => {
+        if (!placeholder.classList.contains('htmx-request')) {
+          htmx.trigger(placeholder, 'load');
+        }
+      });
+    }
+    
+    // Handle print functionality 
+    window.addEventListener('beforeprint', function() {
+      // Force load everything before printing
+      forceLoadAll();
+      
+      // Give time for requests to complete
+      setTimeout(() => {
+        console.log('Ready for printing');
+      }, 500);
+    });
+    
+    // Add a refresh all button
+    const printButton = document.querySelector('.print-hide-btn');
+    const refreshButton = document.createElement('button');
+    refreshButton.className = 'print-hide-btn mr-2 px-4 py-2 bg-gray-600 text-white rounded shadow hover:bg-gray-700 transition flex items-center gap-2';
+    refreshButton.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      Refresh All
+    `;
+    refreshButton.onclick = forceLoadAll;
+    printButton.parentNode.insertBefore(refreshButton, printButton);
+  });
+</script>
+{% endblock %} 

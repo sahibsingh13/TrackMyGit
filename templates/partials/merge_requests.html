@@ -1,0 +1,38 @@
+<!-- Merge Requests Section -->
+<h4 class="font-bold text-accent flex items-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+  </svg>
+  Merge Requests & Pushes
+</h4>
+{% if error %}
+  <div class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load merge requests or pushes: {{ error }}</div>
+{% endif %}
+{% if merge_requests or pushes %}
+  <ul class="ml-5 list-disc space-y-1">
+    {% for mr in merge_requests %}
+      <li>
+        <span class="font-medium">!{{ mr.iid }}</span>
+        {% if mr.title %} - <span class="">{{ mr.title }}</span>{% endif %}
+        <span class="text-gray-500">in {{ mr.project }}</span>
+        {% if mr.push_count %}<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded ml-1">{{ mr.push_count }} pushes</span>{% endif %}
+        {% if mr.commit_count %}<span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded ml-1">{{ mr.commit_count }} commits</span>{% endif %}
+        {% if mr.link %}<a href="{{ mr.link }}" target="_blank" class="text-blue-600 underline ml-2">View</a>{% endif %}
+        <span class="text-xs text-gray-400 ml-2">{{ mr.timestamp|date:'H:i' }}</span>
+      </li>
+    {% endfor %}
+    
+    {% for push in pushes %}
+      <li>
+        <span class="font-medium">{{ push.action|capfirst }}</span>
+        {% if push.branch %}to <span class="text-primary">{{ push.branch }}</span>{% endif %}
+        <span class="text-gray-500">in {{ push.project }}</span>
+        {% if push.commit_count %}<span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded ml-1">{{ push.commit_count }} commits</span>{% endif %}
+        {% if push.link %}<a href="{{ push.link }}" target="_blank" class="text-blue-600 underline ml-2">View</a>{% endif %}
+        <span class="text-xs text-gray-400 ml-2">{{ push.timestamp|date:'H:i' }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="text-gray-500 ml-5">No merge requests or pushes on this day.</div>
+{% endif %} 

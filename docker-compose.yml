@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/trackmygit
+      - SECRET_KEY=your_django_secret_key_here
+      - DEBUG=True
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data: 

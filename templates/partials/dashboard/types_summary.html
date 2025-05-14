@@ -1,0 +1,19 @@
+<div class="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
+  <div class="flex justify-between items-center mb-5">
+    <h3 class="text-lg font-semibold text-primary">Contribution Types</h3>
+    <a href="/tasks/" class="text-primary hover:underline text-sm font-medium no-transition">View Tasks</a>
+  </div>
+  <div class="space-y-4">
+    {% for type, count in stats.contribution_types.items %}
+      <div>
+        <div class="flex justify-between mb-1">
+          <span class="text-sm font-medium text-gray-700 capitalize">{{ type }}</span>
+          <span class="text-sm font-medium text-gray-700">{{ count }}</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: {% widthratio count stats.total_contributions 100 %}%"></div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div> 

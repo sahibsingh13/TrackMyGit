@@ -1,0 +1,128 @@
+<div class="bg-white rounded-2xl shadow-lg p-8 animate-fade-in">
+  <div class="flex justify-between items-center mb-5">
+    <h3 class="text-lg font-semibold text-primary">Activity Distribution</h3>
+    <div class="flex bg-gray-100 rounded-lg p-1">
+      <button class="px-3 py-1.5 bg-white text-primary rounded-md text-sm font-medium shadow-sm transition-all duration-200" id="viewBarChart">Bar</button>
+      <button class="px-3 py-1.5 text-gray-600 rounded-md text-sm font-medium transition-all duration-200" id="viewPieChart">Pie</button>
+    </div>
+  </div>
+  <div class="h-[320px]">
+    <canvas id="activityChart"></canvas>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const activityTypes = [];
+    const activityCounts = [];
+    {% for type, count in stats.contribution_types.items %}
+    activityTypes.push('{{ type }}');
+    activityCounts.push({{ count }});
+    {% endfor %}
+    const activityColors = [
+      '#1976D2', '#9C27B0', '#4CAF50', '#FF9800', '#F44336', '#607D8B'
+    ];
+    const activityCtx = document.getElementById('activityChart').getContext('2d');
+    let activityChart = new Chart(activityCtx, {
+      type: 'bar',
+      data: {
+        labels: activityTypes.map(type => type.charAt(0).toUpperCase() + type.slice(1)),
+        datasets: [{
+          label: 'Activity Count',
+          data: activityCounts,
+          backgroundColor: activityColors,
+          borderRadius: 6,
+          maxBarThickness: 50
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleFont: { size: 14, weight: 'bold' }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#555' }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: { color: '#555', precision: 0 }
+          }
+        }
+      }
+    });
+    // Chart type toggle functionality
+    if (document.getElementById('viewBarChart') && document.getElementById('viewPieChart')) {
+      const barButton = document.getElementById('viewBarChart');
+      const pieButton = document.getElementById('viewPieChart');
+      barButton.addEventListener('click', function() {
+        barButton.classList.add('bg-white', 'text-primary', 'shadow-sm');
+        barButton.classList.remove('text-gray-600');
+        pieButton.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+        pieButton.classList.add('text-gray-600');
+        updateChartType('bar');
+      });
+      pieButton.addEventListener('click', function() {
+        pieButton.classList.add('bg-white', 'text-primary', 'shadow-sm');
+        pieButton.classList.remove('text-gray-600');
+        barButton.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+        barButton.classList.add('text-gray-600');
+        updateChartType('pie');
+      });
+      function updateChartType(type) {
+        activityChart.destroy();
+        const newConfig = {
+          type: type,
+          data: {
+            labels: activityTypes.map(type => type.charAt(0).toUpperCase() + type.slice(1)),
+            datasets: [{
+              label: 'Activity Count',
+              data: activityCounts,
+              backgroundColor: activityColors,
+              borderRadius: type === 'bar' ? 6 : 0,
+              maxBarThickness: 50
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { 
+                display: type === 'pie',
+                position: 'right',
+                labels: {
+                  font: { size: 12 },
+                  usePointStyle: true,
+                  padding: 20
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleFont: { size: 14, weight: 'bold' }
+              }
+            },
+            scales: type === 'bar' ? {
+              x: {
+                grid: { display: false },
+                ticks: { color: '#555' }
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: { color: '#555', precision: 0 }
+              }
+            } : {}
+          }
+        };
+        const newChartCtx = document.getElementById('activityChart').getContext('2d');
+        window.activityChart = new Chart(newChartCtx, newConfig);
+      }
+    }
+  });
+</script> 

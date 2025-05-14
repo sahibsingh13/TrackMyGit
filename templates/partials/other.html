@@ -1,0 +1,25 @@
+{% if error %}
+  <div class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load other activity: {{ error }}</div>
+{% endif %}
+<!-- Other Activity Section -->
+<h4 class="font-bold text-accent flex items-center gap-2">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+  Other Activity
+</h4>
+{% if other %}
+  <ul class="ml-5 list-disc space-y-1">
+    {% for activity in other %}
+      <li>
+        <span class="font-medium">{{ activity.action|capfirst }}</span>
+        {% if activity.title %} - <span class="">{{ activity.title }}</span>{% endif %}
+        <span class="text-gray-500">in {{ activity.project }}</span>
+        {% if activity.link %}<a href="{{ activity.link }}" target="_blank" class="text-blue-600 underline ml-2">View</a>{% endif %}
+        <span class="text-xs text-gray-400 ml-2">{{ activity.timestamp|date:'H:i' }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="text-gray-500 ml-5">No other activities on this day.</div>
+{% endif %} 

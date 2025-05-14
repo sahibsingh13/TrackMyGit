@@ -1,0 +1,67 @@
+{% if error %}
+  <div class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load trend chart: {{ error }}</div>
+{% else %}
+  <div class="bg-white rounded-2xl shadow-lg p-8 animate-fade-in">
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-lg font-semibold text-primary">Contributions Trend</h3>
+    </div>
+    <div class="h-[320px]">
+      <canvas id="contribChart"></canvas>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const chartLabels = {{ labels|safe }};
+      const chartData = {{ data|safe }};
+      const ctx = document.getElementById('contribChart').getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+      gradient.addColorStop(0, 'rgba(25, 118, 210, 0.6)');
+      gradient.addColorStop(1, 'rgba(25, 118, 210, 0.0)');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: 'Contributions',
+            data: chartData,
+            backgroundColor: gradient,
+            borderColor: '#1976d2',
+            borderWidth: 2,
+            pointBackgroundColor: '#1976d2',
+            pointBorderColor: '#FFFFFF',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleFont: { size: 14, weight: 'bold' },
+              bodyFont: { size: 13 },
+              padding: 12,
+              cornerRadius: 6,
+              displayColors: false
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#555', font: { size: 11 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+              ticks: { color: '#555', precision: 0, font: { size: 11 } }
+            }
+          }
+        }
+      });
+    });
+  </script>
+{% endif %} 

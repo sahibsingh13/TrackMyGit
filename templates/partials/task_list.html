@@ -1,0 +1,84 @@
+{% if error %}
+  <div class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load task list: {{ error }}</div>
+{% endif %}
+{% if tasks %}
+  <div class="relative border-l-2 border-primary pl-8 pb-2">
+    {% for task in tasks %}
+      <div class="mb-6 relative animate-fade-in">
+        <!-- Timeline dot -->
+        <div class="absolute -left-[42px] bg-white p-1 border-2 border-primary rounded-full shadow">
+          {% if task.type == 'push' %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+            </svg>
+          {% elif task.type == 'merge_request' %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          {% elif task.type == 'issue' %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          {% elif task.type == 'comment' %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+          {% elif task.type == 'close' %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+            </svg>
+          {% endif %}
+        </div>
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition bg-white">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center">
+              {% if task.type == 'push' %}
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-medium mr-2">Push</span>
+              {% elif task.type == 'merge_request' %}
+                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-md text-xs font-medium mr-2">Merge Request</span>
+              {% elif task.type == 'issue' %}
+                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-md text-xs font-medium mr-2">Issue</span>
+              {% elif task.type == 'comment' %}
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs font-medium mr-2">Comment</span>
+              {% elif task.type == 'close' %}
+                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-md text-xs font-medium mr-2">Closed</span>
+              {% else %}
+                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-md text-xs font-medium mr-2">{{ task.type|title }}</span>
+              {% endif %}
+              <span class="text-sm text-gray-500">{{ task.timestamp|time:"H:i" }}</span>
+            </div>
+          </div>
+          <h4 class="font-medium text-gray-900 mb-1">{{ task.description }}</h4>
+          {% if task.type == 'push' and task.push_data.commit_count %}
+            <div class="mt-2 text-sm text-gray-600">
+              <span class="font-medium">{{ task.push_data.commit_count }}</span> commit(s) to branch <span class="font-medium">{{ task.push_data.ref }}</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+    {% if has_more %}
+      <div class="flex justify-center mt-6">
+        <button 
+          hx-get="/partials/task-list/?date={{ selected_date|date:'Y-m-d' }}&page={{ page|add:1 }}"
+          hx-target="#task-list"
+          hx-swap="afterend"
+          class="px-6 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary-dark transition-all animate-fade-in">
+          Load More
+        </button>
+      </div>
+    {% endif %}
+  </div>
+{% else %}
+  <div class="bg-blue-50 border border-blue-200 text-blue-800 p-6 rounded-lg text-center animate-fade-in">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <p class="text-lg font-medium">No tasks found for this day</p>
+    <p class="text-sm mt-1">Try selecting a different date.</p>
+  </div>
+{% endif %} 
