@@ -1,39 +1,33 @@
 {% if error %}
-  <div class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load stats: {{ error }}</div>
-{% endif %}
-<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-  <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center justify-between group hover:shadow-xl transition-shadow duration-300">
-    <div>
-      <span class="block text-gray-500 font-medium text-sm">Total Contributions</span>
-      <span class="text-3xl font-extrabold text-primary animate-count">{{ stats.total_contributions }}</span>
+  <div id="dashboard-stats-container" class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load stats: {{ error }}</div>
+{% else %}
+  <div id="dashboard-stats-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in">
+    <!-- Total Contributions Card -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <h3 class="text-sm font-medium text-gray-500 mb-2">Total Contributions</h3>
+      <p class="text-4xl font-bold text-indigo-600">{{ stats.total_contributions }}</p>
+      <p class="text-sm text-gray-500 mt-1">All activity across your repositories</p>
     </div>
-    <div class="bg-primary/10 p-4 rounded-full group-hover:scale-110 transition-transform duration-300">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
-      </svg>
+    
+    <!-- Commits Card -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <h3 class="text-sm font-medium text-gray-500 mb-2">Commits</h3>
+      <p class="text-4xl font-bold text-blue-500">{{ stats.contribution_types.pushed_to|default:0 }}</p>
+      <p class="text-sm text-gray-500 mt-1">Code changes pushed to repositories</p>
+    </div>
+    
+    <!-- Merge Requests Card -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <h3 class="text-sm font-medium text-gray-500 mb-2">Merge Requests</h3>
+      <p class="text-4xl font-bold text-indigo-600">{{ stats.contribution_types.opened|default:0 }}</p>
+      <p class="text-sm text-gray-500 mt-1">Code reviews and integrations</p>
+    </div>
+    
+    <!-- Current Streak Card -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <h3 class="text-sm font-medium text-gray-500 mb-2">Current Streak</h3>
+      <p class="text-4xl font-bold text-blue-500">{{ current_streak }} days</p>
+      <p class="text-sm text-gray-500 mt-1">Consecutive days with activity</p>
     </div>
   </div>
-  {% for type, count in stats.contribution_types.items|slice:":3" %}
-    <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center justify-between group hover:shadow-xl transition-shadow duration-300">
-      <div>
-        <span class="block text-gray-500 font-medium text-sm capitalize">{{ type }}</span>
-        <span class="text-2xl font-bold text-gray-800 animate-count">{{ count }}</span>
-      </div>
-      <div class="{% if forloop.counter == 1 %}bg-blue-100 text-blue-600{% elif forloop.counter == 2 %}bg-purple-100 text-purple-600{% else %}bg-green-100 text-green-600{% endif %} p-4 rounded-full group-hover:scale-110 transition-transform duration-300">
-        {% if type == 'pushed to' %}
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
-          </svg>
-        {% elif type == 'commented on' %}
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-          </svg>
-        {% else %}
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-          </svg>
-        {% endif %}
-      </div>
-    </div>
-  {% endfor %}
-</div> 
+{% endif %} 

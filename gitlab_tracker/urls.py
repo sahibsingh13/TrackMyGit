@@ -36,4 +36,5 @@ urlpatterns = [
     path('partials/dashboard/activity-chart/', views.dashboard_activity_chart_partial, name='dashboard_activity_chart_partial'),
     path('partials/dashboard/types-summary/', views.dashboard_types_summary_partial, name='dashboard_types_summary_partial'),
     path('partials/dashboard/recent-activity/', views.dashboard_recent_activity_partial, name='dashboard_recent_activity_partial'),
+    path('partials/dashboard/contribution-heatmap/', views.dashboard_contribution_heatmap_partial, name='dashboard_contribution_heatmap_partial'),
 ] 

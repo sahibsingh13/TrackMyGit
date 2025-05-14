@@ -1,0 +1,137 @@
+{% if error %}
+  <div id="dashboard-activity-chart-container" class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load activity chart: {{ error }}</div>
+{% else %}
+  <div id="dashboard-activity-chart-container" class="animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+      <div class="flex justify-between items-center mb-5">
+        <h3 class="text-lg font-semibold text-primary">Activity Breakdown</h3>
+      </div>
+      <div class="h-[320px]">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+  
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const chartElement = document.getElementById('activityChart');
+        if (!chartElement) {
+          console.error('Activity chart element not found');
+          return;
+        }
+        
+        const ctx = chartElement.getContext('2d');
+        if (!ctx) {
+          console.error('Could not get activity chart context');
+          return;
+        }
+        
+        try {
+          // Prepare data
+          const contributionTypes = {{ stats.contribution_types|safe }};
+          const labels = [];
+          const data = [];
+          const backgroundColors = [
+            'rgba(25, 118, 210, 0.8)',
+            'rgba(63, 81, 181, 0.8)',
+            'rgba(139, 92, 246, 0.8)', 
+            'rgba(76, 175, 80, 0.8)',
+            'rgba(0, 188, 212, 0.8)',
+            'rgba(255, 152, 0, 0.8)',
+            'rgba(244, 67, 54, 0.8)'
+          ];
+          
+          // Convert to arrays for Chart.js
+          let index = 0;
+          for (const type in contributionTypes) {
+            if (contributionTypes.hasOwnProperty(type)) {
+              labels.push(type);
+              data.push(contributionTypes[type]);
+              index++;
+              if (index >= 7) break; // Limit to 7 categories
+            }
+          }
+          
+          // Create chart
+          new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: labels,
+              datasets: [{
+                data: data,
+                backgroundColor: backgroundColors.slice(0, data.length),
+                borderColor: 'white',
+                borderWidth: 2,
+                borderRadius: 5,
+                hoverOffset: 15
+              }]
+            },
+            options: {
+              cutout: '65%',
+              responsive: true,
+              maintainAspectRatio: false,
+              animation: {
+                animateRotate: true,
+                animateScale: true
+              },
+              layout: {
+                padding: 20
+              },
+              plugins: {
+                legend: {
+                  position: 'right',
+                  labels: {
+                    boxWidth: 15,
+                    padding: 15,
+                    font: {
+                      size: 12
+                    },
+                    generateLabels: function(chart) {
+                      const data = chart.data;
+                      if (data.labels.length && data.datasets.length) {
+                        return data.labels.map(function(label, i) {
+                          const meta = chart.getDatasetMeta(0);
+                          const style = meta.controller.getStyle(i);
+                          const value = data.datasets[0].data[i];
+                          const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                          const percentage = Math.round((value / total) * 100) + '%';
+                          
+                          return {
+                            text: `${label}: ${percentage}`,
+                            fillStyle: style.backgroundColor,
+                            strokeStyle: style.borderColor,
+                            lineWidth: style.borderWidth,
+                            hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
+                            index: i
+                          };
+                        });
+                      }
+                      return [];
+                    }
+                  }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      const label = context.label || '';
+                      const value = context.raw;
+                      const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                      const percentage = Math.round((value / total) * 100);
+                      return `${label}: ${value} (${percentage}%)`;
+                    }
+                  },
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  titleFont: { size: 14, weight: 'bold' },
+                  bodyFont: { size: 13 },
+                  padding: 12,
+                  cornerRadius: 6
+                }
+              }
+            }
+          });
+        } catch (error) {
+          console.error('Error creating activity chart:', error);
+        }
+      });
+    </script>
+  </div>
+{% endif %} 

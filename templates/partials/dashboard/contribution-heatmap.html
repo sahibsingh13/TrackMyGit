@@ -1,0 +1,53 @@
+{% if error %}
+  <div id="dashboard-contribution-heatmap-container" class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load contribution heatmap: {{ error }}</div>
+{% else %}
+  <div id="dashboard-contribution-heatmap-container" class="animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+      <div class="flex justify-between items-center mb-5">
+        <h3 class="text-2xl font-bold text-primary">Contribution Overview</h3>
+      </div>
+      <p class="text-gray-600 mb-6">Your activity across GitLab repositories</p>
+      
+      <!-- Contribution Activity Section -->
+      <div class="mt-8">
+        <h4 class="text-lg font-semibold text-primary mb-4">Contribution Activity</h4>
+        
+        <!-- Calendar Heatmap -->
+        <div class="overflow-auto">
+          <div class="grid grid-cols-[60px_repeat(7,1fr)] gap-1">
+            <!-- Days of Week Headers -->
+            <div class="text-center text-sm text-gray-500"></div>
+            <div class="text-center text-sm text-gray-500">Sun</div>
+            <div class="text-center text-sm text-gray-500">Mon</div>
+            <div class="text-center text-sm text-gray-500">Tue</div>
+            <div class="text-center text-sm text-gray-500">Wed</div>
+            <div class="text-center text-sm text-gray-500">Thu</div>
+            <div class="text-center text-sm text-gray-500">Fri</div>
+            <div class="text-center text-sm text-gray-500">Sat</div>
+            
+            <!-- Calendar Data -->
+            {% for week in calendar_data %}
+              <!-- Date Label -->
+              <div class="text-right pr-2 text-sm text-gray-500 flex flex-col justify-center items-end">
+                {% if week.show_date %}
+                  <div>{{ week.date_display }}</div>
+                  <div>{{ week.month_display }}</div>
+                {% endif %}
+              </div>
+              
+              <!-- Days in Week -->
+              {% for day in week.days %}
+                <div 
+                  class="aspect-square rounded-md flex items-center justify-center text-sm font-medium transition-all duration-200 {% if day.count == 0 %}bg-gray-800{% elif day.count < 3 %}bg-indigo-200 text-indigo-900{% elif day.count < 5 %}bg-indigo-300 text-indigo-900{% elif day.count < 7 %}bg-indigo-400 text-white{% elif day.count < 9 %}bg-indigo-500 text-white{% else %}bg-indigo-600 text-white{% endif %} hover:scale-105"
+                  title="{{ day.date }}: {{ day.count }} contributions"
+                >
+                  {% if day.in_range %}{{ day.count }}{% endif %}
+                </div>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %} 

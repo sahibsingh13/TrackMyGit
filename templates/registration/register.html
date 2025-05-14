@@ -1,30 +1,69 @@
-{% extends 'base.html' %}
-{% load widget_tweaks %}
+{% extends 'base_minimal.html' %}
 {% block content %}
-<div class="flex justify-center items-center min-h-[60vh]">
-  <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg border border-gray-200">
-    <h2 class="text-2xl font-bold text-primary mb-6 text-center">Create Your TrackMyGit Account</h2>
-    <form method="post" class="space-y-5">
-      {% csrf_token %}
-      <div>
-        <label for="id_username" class="block text-sm font-semibold mb-1">Username</label>
-        {{ form.username|add_class:'input input-bordered w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary' }}
-      </div>
-      <div>
-        <label for="id_email" class="block text-sm font-semibold mb-1">Email</label>
-        {{ form.email|add_class:'input input-bordered w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary' }}
-      </div>
-      <div>
-        <label for="id_password1" class="block text-sm font-semibold mb-1">Password</label>
-        {{ form.password1|add_class:'input input-bordered w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary' }}
-      </div>
-      <div>
-        <label for="id_password2" class="block text-sm font-semibold mb-1">Confirm Password</label>
-        {{ form.password2|add_class:'input input-bordered w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-primary' }}
-      </div>
-      <button type="submit" class="w-full py-3 rounded bg-primary text-white font-bold text-lg shadow hover:bg-primary-dark transition">Register</button>
-    </form>
-    <p class="mt-6 text-center text-gray-500">Already have an account? <a href="/login/" class="text-primary font-semibold hover:underline">Login here</a>.</p>
-  </div>
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-blue-500 mb-2">GitLab Contribution Tracker</h1>
+        <p class="text-gray-600">Track your contributions and tasks in one place</p>
+    </div>
+
+    <div class="bg-white rounded-md shadow-md overflow-hidden w-full max-w-md">
+        <!-- Tab navigation -->
+        <div class="flex border-b">
+            <a href="{% url 'login' %}" class="w-1/2 py-3 text-center font-medium text-gray-500 hover:text-gray-700">
+                Login
+            </a>
+            <a href="{% url 'register' %}" class="w-1/2 py-3 text-center font-medium text-blue-500 border-b-2 border-blue-500">
+                Register
+            </a>
+        </div>
+
+        <!-- Content area -->
+        <div class="p-6">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">Create an account</h2>
+                <p class="text-gray-600 text-sm mt-1">Get started tracking your GitLab activity</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+                Please correct the errors below.
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div>{{ field.label }}: {{ error }}</div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" name="username" id="id_username" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Choose a username">
+                </div>
+                <div>
+                    <label for="id_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" name="email" id="id_email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Your email address">
+                </div>
+                <div>
+                    <label for="id_password1" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" name="password1" id="id_password1" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Create a password">
+                </div>
+                <div>
+                    <label for="id_password2" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <input type="password" name="password2" id="id_password2" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Confirm your password">
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        Register
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-6 text-center text-sm text-gray-500">
+        By signing up, you agree to our Terms of Service and Privacy Policy.
+    </div>
 </div>
 {% endblock %} 

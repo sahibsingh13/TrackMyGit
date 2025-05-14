@@ -8,6 +8,11 @@
 {% if error %}
   <div class="bg-red-100 text-red-700 p-2 rounded mb-2">Failed to load pushes: {{ error }}</div>
 {% endif %}
+
+{% if message %}
+  <div class="p-4 bg-blue-50 text-blue-700 rounded">{{ message }}</div>
+{% endif %}
+
 {% if pushes %}
   <ul class="ml-5 list-disc space-y-1">
     {% for push in pushes %}
@@ -22,5 +27,7 @@
     {% endfor %}
   </ul>
 {% else %}
-  <div class="text-gray-500 ml-5">No pushes or commits on this day.</div>
+  {% if not error and not message %}
+    <div class="text-gray-500 ml-5">No pushes on this day.</div>
+  {% endif %}
 {% endif %} 
